@@ -20,13 +20,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Create necessary directories
-RUN mkdir -p templates models
 
 # Copy application files
 COPY main.py .
 COPY templates/ templates/
-COPY model.pkl models/
+COPY model.pkl .
 
 # Create a non-root user for security
 RUN adduser --disabled-password --gecos '' appuser && \
