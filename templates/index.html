@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .predict-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .predict-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .result.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .api-info {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .api-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .api-info p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Car Price Predictor</h1>
+            <p>Get an accurate price prediction for your car using our AI model</p>
+        </div>
+
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="manufacturer">Manufacturer</label>
+                <select id="manufacturer" name="manufacturer" required>
+                    <option value="">Select Manufacturer</option>
+                    <option value="Toyota">Toyota</option>
+                    <option value="Honda">Honda</option>
+                    <option value="Ford">Ford</option>
+                    <option value="BMW">BMW</option>
+                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                    <option value="Audi">Audi</option>
+                    <option value="Volkswagen">Volkswagen</option>
+                    <option value="Nissan">Nissan</option>
+                    <option value="Hyundai">Hyundai</option>
+                    <option value="Kia">Kia</option>
+                    <option value="Mazda">Mazda</option>
+                    <option value="Subaru">Subaru</option>
+                    <option value="Lexus">Lexus</option>
+                    <option value="Infiniti">Infiniti</option>
+                    <option value="Acura">Acura</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="model">Model</label>
+                <input type="text" id="model" name="model" placeholder="e.g., Camry, Civic, Focus" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fuelType">Fuel Type</label>
+                    <select id="fuelType" name="fuelType" required>
+                        <option value="">Select Fuel Type</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="Electric">Electric</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="engineSize">Engine Size (L)</label>
+                    <input type="number" id="engineSize" name="engineSize" step="0.1" min="0.1" max="8.0" placeholder="e.g., 2.5" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="yearOfManufacture">Year of Manufacture</label>
+                    <input type="number" id="yearOfManufacture" name="yearOfManufacture" min="1980" max="2025" placeholder="e.g., 2018" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="mileage">Mileage</label>
+                    <input type="number" id="mileage" name="mileage" min="0" max="500000" placeholder="e.g., 45000" required>
+                </div>
+            </div>
+
+            <button type="submit" class="predict-btn" id="predictBtn">
+                🔮 Predict Car Price
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your car details...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="api-info">
+            <h3>🛠️ API Information</h3>
+            <p><strong>Health Check:</strong> <a href="http://localhost:8000/health" target="_blank">http://localhost:8000/health</a></p>
+            <p><strong>Model Metadata:</strong> <a href="http://localhost:8000/metadata" target="_blank">http://localhost:8000/metadata</a></p>
+            <p><strong>API Documentation:</strong> <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a></p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('predictionForm');
+        const loading = document.getElementById('loading');
+        const result = document.getElementById('result');
+        const predictBtn = document.getElementById('predictBtn');
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            predictBtn.disabled = true;
+            predictBtn.textContent = 'Predicting...';
+
+            // Collect form data
+            const formData = new FormData(form);
+            const payload = {
+                "Manufacturer": formData.get('manufacturer'),
+                "Model": formData.get('model'),
+                "Fuel type": formData.get('fuelType'),
+                "Engine size": parseFloat(formData.get('engineSize')),
+                "Year of manufacture": parseInt(formData.get('yearOfManufacture')),
+                "Mileage": parseFloat(formData.get('mileage'))
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Show success result
+                result.className = 'result success';
+                result.innerHTML = `
+                    <h3>🎉 Prediction Complete!</h3>
+                    <p>Estimated Price: <strong>£${data.predicted_price.toLocaleString()}</strong></p>
+                    <small>This prediction is based on current market trends and car specifications</small>
+                `;
+                result.style.display = 'block';
+
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // Show error result
+                result.className = 'result error';
+                result.innerHTML = `
+                    <h3>❌ Prediction Failed</h3>
+                    <p>Sorry, we couldn't predict the price. Please check your input and try again.</p>
+                    <small>Error: ${error.message}</small>
+                `;
+                result.style.display = 'block';
+            } finally {
+                // Hide loading state
+                loading.style.display = 'none';
+                predictBtn.disabled = false;
+                predictBtn.textContent = '🔮 Predict Car Price';
+            }
+        });
+
+        // Auto-populate current year
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            const yearInput = document.getElementById('yearOfManufacture');
+            yearInput.setAttribute('max', currentYear);
+        });
+    </script>
+</body>
+</html>
