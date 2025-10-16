@@ -26,7 +26,7 @@ RUN mkdir -p templates models
 # Copy application files
 COPY main.py .
 COPY templates/ templates/
-COPY ../../../../models/model.pkl models/
+COPY model.pkl models/
 
 # Create a non-root user for security
 RUN adduser --disabled-password --gecos '' appuser && \
