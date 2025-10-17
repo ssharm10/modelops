@@ -189,58 +189,61 @@
                 <label for="manufacturer">Manufacturer</label>
                 <select id="manufacturer" name="manufacturer" required>
                     <option value="">Select Manufacturer</option>
-                    <option value="Toyota">Toyota</option>
-                    <option value="Honda">Honda</option>
-                    <option value="Ford">Ford</option>
                     <option value="BMW">BMW</option>
-                    <option value="Mercedes-Benz">Mercedes-Benz</option>
-                    <option value="Audi">Audi</option>
-                    <option value="Volkswagen">Volkswagen</option>
-                    <option value="Nissan">Nissan</option>
-                    <option value="Hyundai">Hyundai</option>
-                    <option value="Kia">Kia</option>
-                    <option value="Mazda">Mazda</option>
-                    <option value="Subaru">Subaru</option>
-                    <option value="Lexus">Lexus</option>
-                    <option value="Infiniti">Infiniti</option>
-                    <option value="Acura">Acura</option>
+                    <option value="Ford">Ford</option>
+                    <option value="Porsche">Porsche</option>
+                    <option value="Toyota">Toyota</option>
+                    <option value="VW">VW</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label for="model">Model</label>
-                <input type="text" id="model" name="model" placeholder="e.g., Camry, Civic, Focus" required>
+                <select id="model" name="model" required>
+                    <option value="">Select Model</option>
+                    <option value="718 Cayman">718 Cayman</option>
+                    <option value="911">911</option>
+                    <option value="Cayenne">Cayenne</option>
+                    <option value="Fiesta">Fiesta</option>
+                    <option value="Focus">Focus</option>
+                    <option value="Golf">Golf</option>
+                    <option value="M5">M5</option>
+                    <option value="Mondeo">Mondeo</option>
+                    <option value="Passat">Passat</option>
+                    <option value="Polo">Polo</option>
+                    <option value="Prius">Prius</option>
+                    <option value="RAV4">RAV4</option>
+                    <option value="X3">X3</option>
+                    <option value="Yaris">Yaris</option>
+                    <option value="Z4">Z4</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fuelType">Fuel Type</label>
+                <select id="fuelType" name="fuelType" required>
+                    <option value="">Select Fuel Type</option>
+                    <option value="Diesel">Diesel</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="Petrol">Petrol</option>
+                </select>
             </div>
 
             <div class="form-row">
-                <div class="form-group">
-                    <label for="fuelType">Fuel Type</label>
-                    <select id="fuelType" name="fuelType" required>
-                        <option value="">Select Fuel Type</option>
-                        <option value="Petrol">Petrol</option>
-                        <option value="Diesel">Diesel</option>
-                        <option value="Hybrid">Hybrid</option>
-                        <option value="Electric">Electric</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
                 <div class="form-group">
                     <label for="engineSize">Engine Size (L)</label>
-                    <input type="number" id="engineSize" name="engineSize" step="0.1" min="0.1" max="8.0" placeholder="e.g., 2.5" required>
+                    <input type="number" id="engineSize" name="engineSize" step="0.1" min="0.1" max="8.0" placeholder="e.g., 1.8" required>
                 </div>
-            </div>
 
-            <div class="form-row">
                 <div class="form-group">
                     <label for="yearOfManufacture">Year of Manufacture</label>
                     <input type="number" id="yearOfManufacture" name="yearOfManufacture" min="1980" max="2025" placeholder="e.g., 2018" required>
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label for="mileage">Mileage</label>
-                    <input type="number" id="mileage" name="mileage" min="0" max="500000" placeholder="e.g., 45000" required>
-                </div>
+            <div class="form-group">
+                <label for="mileage">Mileage</label>
+                <input type="number" id="mileage" name="mileage" min="0" max="500000" placeholder="e.g., 112000" required>
             </div>
 
             <button type="submit" class="predict-btn" id="predictBtn">
@@ -259,7 +262,7 @@
             <h3>🛠️ API Information</h3>
             <p><strong>Health Check:</strong> <a href="http://localhost:8000/health" target="_blank">http://localhost:8000/health</a></p>
             <p><strong>Model Metadata:</strong> <a href="http://localhost:8000/metadata" target="_blank">http://localhost:8000/metadata</a></p>
-            <p><strong>API Documentation:</strong> <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a></p>
+            <p><strong>Categories:</strong> <a href="http://localhost:8000/categories" target="_blank">http://localhost:8000/categories</a></p>
         </div>
     </div>
 
@@ -304,14 +307,23 @@
 
                 const data = await response.json();
                 
-                // Show success result
-                result.className = 'result success';
-                result.innerHTML = `
-                    <h3>🎉 Prediction Complete!</h3>
-                    <p>Estimated Price: <strong>£${data.predicted_price.toLocaleString()}</strong></p>
-                    <small>This prediction is based on current market trends and car specifications</small>
-                `;
-                result.style.display = 'block';
+                // Check if there's an error in the response
+                if (data.error) {
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        <h3>⚠️ Invalid Input</h3>
+                        <p>${data.error}</p>
+                    `;
+                    result.style.display = 'block';
+                } else {
+                    // Show success result
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h3>🎉 Prediction Complete!</h3>
+                        <p>Estimated Price: <strong>£${data.predicted_price.toLocaleString()}</strong></p>
+                    `;
+                    result.style.display = 'block';
+                }
 
             } catch (error) {
                 console.error('Error:', error);
