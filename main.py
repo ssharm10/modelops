@@ -8,7 +8,7 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 
 # Load the pre-trained model
-model = joblib.load("../../../../models/model.pkl")
+model = joblib.load("model.pkl")
 
 # Create FastAPI app
 app = FastAPI(title="Car Price Prediction API", version="1.0.0")
